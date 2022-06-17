@@ -1,8 +1,10 @@
 import os
 import sys
+import json
 import pickle
 import numpy as np
 import pandas as pd
+import IPython.display
 
 from librosa import load
 from librosa.feature import (
@@ -24,12 +26,39 @@ from scipy import stats
 from pydub import AudioSegment
 from IPython.display import Audio
 
+import json
 
-def audio_play(dir_file):
-    y, sr = load(dir_file)
-    return Audio(y, rate=sr)
+def Audio(audio: np.ndarray, sr: int):
+    """
+    Use instead of IPython.display.Audio as a workaround for VS Code.
+    `audio` is an array with shape (channels, samples) or just (samples,) for mono.
+    """
+    if np.ndim(audio) == 1:
+        channels = [audio.tolist()]
+    else:
+        channels = audio.tolist()
 
-
+    return IPython.display.HTML("""
+        <script>
+            if (!window.audioContext) {
+                window.audioContext = new AudioContext();
+                window.playAudio = function(audioChannels, sr) {
+                    const buffer = audioContext.createBuffer(audioChannels.length, audioChannels[0].length, sr);
+                    for (let [channel, data] of audioChannels.entries()) {
+                        buffer.copyToChannel(Float32Array.from(data), channel);
+                    }
+            
+                    const source = audioContext.createBufferSource();
+                    source.buffer = buffer;
+                    source.connect(audioContext.destination);
+                    source.start();
+                }
+            }
+        </script>
+        <button onclick="playAudio(%s, %s)">Play</button>
+    """ % (json.dumps(channels), sr))
+    
+    
 def create_dirs(folders, directory):
     for folder in folders:
         print(f'Creating folder: { folder } in { directory }')
@@ -45,18 +74,33 @@ def save_data(directory, name_out, variable):
     pickle.dump(variable, f)
     f.close() 
     
+    
 def load_data(directory):
     f = open(directory, 'rb')  
     aux = pickle.load(f)
     f.close()
     return aux     
 
+
 def remove_caracter(column, caracter):
     size = column.shape[0]
     return [column[i].replace(caracter, '') for i in range(size)]
 
+
 def get_duration(data, sr):
     return len(data)/sr
+
+
+def table_missing(df):
+    
+    total = df.isnull().sum().sort_values(ascending=False)
+    percent = (df.isnull().sum()/df.isnull().count()).sort_values(ascending=False) * 100
+
+    missing = pd.concat([total, percent], axis=1, join='outer', keys=['total_faltantes', 'percentual'])
+
+    missing.index.name = 'Variaveis Numericas'
+    
+    return missing
 
 def convert_sonds(dir_input, dir_output, format_input, format_output):
     n = 0
