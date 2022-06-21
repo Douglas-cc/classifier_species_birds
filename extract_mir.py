@@ -24,15 +24,13 @@ from librosa.feature import (
 from collections import defaultdict
 from scipy import stats
 from pydub import AudioSegment
-from IPython.display import Audio
+from IPython.display import Audio   
 
-import json
+# audio: np.ndarray, sr: int
 
-def Audio(audio: np.ndarray, sr: int):
-    """
-    Use instead of IPython.display.Audio as a workaround for VS Code.
-    `audio` is an array with shape (channels, samples) or just (samples,) for mono.
-    """
+def play_audio(directory):
+    audio, sr = load(directory, mono=True) 
+    
     if np.ndim(audio) == 1:
         channels = [audio.tolist()]
     else:
@@ -43,7 +41,9 @@ def Audio(audio: np.ndarray, sr: int):
             if (!window.audioContext) {
                 window.audioContext = new AudioContext();
                 window.playAudio = function(audioChannels, sr) {
-                    const buffer = audioContext.createBuffer(audioChannels.length, audioChannels[0].length, sr);
+                    const buffer = audioContext.createBuffer(audioChannels.length, 
+                    audioChannels[0].length, sr);
+                    
                     for (let [channel, data] of audioChannels.entries()) {
                         buffer.copyToChannel(Float32Array.from(data), channel);
                     }
@@ -92,14 +92,10 @@ def get_duration(data, sr):
 
 
 def table_missing(df):
-    
     total = df.isnull().sum().sort_values(ascending=False)
     percent = (df.isnull().sum()/df.isnull().count()).sort_values(ascending=False) * 100
-
     missing = pd.concat([total, percent], axis=1, join='outer', keys=['total_faltantes', 'percentual'])
-
     missing.index.name = 'Variaveis Numericas'
-    
     return missing
 
 def convert_sonds(dir_input, dir_output, format_input, format_output):
@@ -135,7 +131,7 @@ def statistics_values(data, types):
         return stats.mode(data)[0][0]
           
 def extract_features(dir_audio, statistic):
-    files = read_fold(dir_audio)[:2]
+    files = read_fold(dir_audio)
     dic = defaultdict(list)
     
     for file in files:
@@ -144,14 +140,14 @@ def extract_features(dir_audio, statistic):
         
         dic["arquivo"].append(file)
         
-        # Fourier Tempogram
-        four_tempog = fourier_tempogram(y=sample, sr=sr)    
+        # # Fourier Tempogram
+        # four_tempog = fourier_tempogram(y=sample, sr=sr)    
              
-        for i in range(four_tempog.shape[0]):   
-            name = f'fourier_tempogram-{statistic}-{str(i)}'
-            value = statistics_values(four_tempog[i,:], statistic)
+        # for i in range(four_tempog.shape[0]):   
+        #     name = f'fourier_tempogram-{statistic}-{str(i)}'
+        #     value = statistics_values(four_tempog[i,:], statistic)
             
-            dic[name].append(value)
+        #     dic[name].append(value)
             
         # Tempogram
         tempog = tempogram(y=sample, sr=sr)
@@ -199,7 +195,7 @@ def extract_features(dir_audio, statistic):
             dic[name].append(value)
                 
         # mfcc, mel frequencia 30 contéudos                     
-        value_mfcc = mfcc(y=sample, sr=sr, n_mfcc=20)
+        value_mfcc = mfcc(y=sample, sr=sr, n_mfcc=50)
             
         for i in range(value_mfcc.shape[0]):
             name = f'mfcc-{statistic}-{str(i)}'
@@ -245,7 +241,7 @@ def extract_features(dir_audio, statistic):
     
     df = pd.DataFrame(dic) 
      
-    # save_data('data/', 'features_sonds', df)
-    df.to_csv(f'data/features_sonds_{statistic}.csv')
+    # save_data('data/', f'features_sonds_{statistic}_mel50', df)
+    df.to_csv(f'data/features_sonds_{statistic}_mel50.csv')
     
     return df
