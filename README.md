@@ -8,7 +8,7 @@ Para criar um classificador iremos usar a abordagem de recuperação de informa�
 Uma vez que temos os nossos dados estruturados de forma tabular podemos aplicar feature engineer, feature select, técnicas de machine learning e validações robusta através de cross validate, k-fold e métricas de classificação.
 
 # Status atual do Projeto
- Apos os primeiros esforces nesta pesquisa não obtivemos resultados satisfatórios no entanto podemos observar abordagens que ainda precisaríamos testar em primeiro lugar uma abordagem para pegar somente o canto dos pássaros e retirar com mais exatidão ruídos externos do ambiente mas principalmente mais exemplos de dados para cada especie. Explorar modelos que são mais robustos para problemas não linearmente separáveis como arquiteturas de redes neurais e modelos eurísticos como algoritmos genéticos e buscar conhecer novas features no campo de MIR e testar transformações matemáticas nas features mais importantes descobertas. Os melhores resultado para cada modelo foram:
+ Após os primeiros esforces nesta pesquisa não obtivemos resultados satisfatórios no entanto podemos observar abordagens que ainda precisaríamos testar em primeiro lugar uma abordagem para pegar somente o canto dos pássaros e retirar com mais exatidão ruídos externos do ambiente mas principalmente mais exemplos de dados para cada especie. Explorar modelos que são mais robustos para problemas não linearmente separáveis como arquiteturas de redes neurais e modelos eurísticos como algoritmos genéticos e buscar conhecer novas features no campo de MIR e testar transformações matemáticas nas features mais importantes descobertas. Os melhores resultado para cada modelo foram:
  
  # Menbros do Projeto
  - Douglas silva 
